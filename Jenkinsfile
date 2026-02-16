@@ -5,20 +5,23 @@ pipeline {
 
         stage('Clone') {
             steps {
-                echo "Cloning repository..."
+                git branch: 'main', url: 'https://github.com/Kamleshaglave/jenkins-demo-project.git'
             }
         }
 
-        stage('Build') {
+        stage('Docker Build') {
             steps {
-                echo "Build Stage Running..."
+                sh 'docker build -t kamlesh-devops-app .'
             }
         }
 
-        stage('Deploy') {
+        stage('Docker Deploy') {
             steps {
-                echo "Deploying to Apache..."
-                sh 'cp -r * /var/www/html/'
+                sh '''
+                docker stop kamlesh-container || true
+                docker rm kamlesh-container || true
+                docker run -d -p 8081:80 --name kamlesh-container kamlesh-devops-app
+                '''
             }
         }
     }
